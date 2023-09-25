@@ -1,0 +1,46 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: true
+  vars:
+    user_name: RegineJ2027
+    color: write
+  tasks:
+  - name: Install apt passwd package
+    apt:
+      name: passwd
+      state: present
+    when: ansible_distribution not in "Debian, Ubuntu"
+    tags:
+      - app1
+  - name: Create a group
+    group:
+      name: cloudteam
+      state: present
+    #when: ansible_distribution_major_version < 9
+  - name: Create a user
+    user:
+      name: "{{user_name}}"
+      comment: Regine Admin
+      group: cloudteam
+- hosts: db
+  become: yes
+  tasks:
+    - name: Install apache
+      apt:
+        name: apache2
+        state: present
+    - name: start apache service
+      service: 
+        name: apache2 
+        state: started 
+        enabled: yes
+      tags:
+        - deamon
+
+    - name: Copy index file
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        mode: '0644'
+
